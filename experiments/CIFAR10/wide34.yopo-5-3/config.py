@@ -29,8 +29,10 @@ class TrainingConfing(TrainingConfigBase):
 
     inner_iters = 3
     K = 5
-    sigma = 2 / 255.0
-    eps = 8 / 255.0
+    # eps = 8 / 255.0
+    # sigma = 2 / 255.0
+    eps = 32.0 / 255.0
+    sigma = eps / np.sqrt(inner_iters * K)
 
     create_optimizer = SGDOptimizerMaker(lr =1e-1 * 4 / K, momentum = 0.9, weight_decay = 5e-4)
     create_lr_scheduler = PieceWiseConstantLrSchedulerMaker(milestones = [30, 34, 36], gamma = 0.1)
@@ -44,7 +46,8 @@ class TrainingConfing(TrainingConfigBase):
     create_attack_method = None
 
     create_evaluation_attack_method = \
-        IPGDAttackMethodMaker(eps = 8/255.0, sigma = 2/255.0, nb_iters = 20, norm = np.inf,
+        IPGDAttackMethodMaker(eps = eps, sigma = sigma, nb_iters = inner_iters * K,
+                              norm = np.inf,
                               mean=torch.tensor(
                                   np.array([0]).astype(np.float32)[np.newaxis, :, np.newaxis, np.newaxis]),
                               std=torch.tensor(np.array([1]).astype(np.float32)[np.newaxis, :, np.newaxis, np.newaxis]))
